@@ -3,21 +3,30 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 
-export default async function HomePage() {
+export async function requireAuth() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  // Chưa login
   if (!session) {
     redirect("/login");
   }
 
-  // Chưa setup username
   if (!session.user.username) {
     redirect("/setup-username");
   }
 
-  // Đã hoàn tất onboarding
-  redirect("/feed");
+  return session;
+}
+
+export async function requireGuest() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session?.user?.username) {
+    redirect("/feed");
+  }
+
+  return session;
 }
