@@ -1,5 +1,8 @@
+// Copyright (c) 2026 Company Name. All rights reserved.
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,6 +25,16 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-background text-primary antialiased`}
       >
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: "#1e1e1e",
+              border: "1px solid #333",
+              color: "#fff",
+            },
+          }}
+        />
         {children}
       </body>
     </html>
