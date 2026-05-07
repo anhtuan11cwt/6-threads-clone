@@ -1,5 +1,3 @@
-// Copyright (c) 2026 Company Name. All rights reserved.
-
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";

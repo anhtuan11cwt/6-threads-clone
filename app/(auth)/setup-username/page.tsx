@@ -1,5 +1,3 @@
-// Copyright (c) 2026 Company Name. All rights reserved.
-
 "use client";
 
 import axios from "axios";

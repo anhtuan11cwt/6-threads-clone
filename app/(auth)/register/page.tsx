@@ -1,5 +1,3 @@
-// Copyright (c) 2026 Company Name. All rights reserved.
-
 "use client";
 
 import { Eye, EyeOff, Loader2 } from "lucide-react";

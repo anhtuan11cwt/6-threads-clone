@@ -1,5 +1,3 @@
-// Copyright (c) 2026 Company Name. All rights reserved.
-
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/actions/get-current-user";
 
@@ -11,10 +9,10 @@ export default async function FeedPage() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Chào mừng, {user.name}!</h1>
-      <p className="text-muted mb-2">@{user.username || "chưa có username"}</p>
-      <p className="text-sm text-muted">Đây là trang feed chính của bạn.</p>
+    <main className="flex flex-col justify-center items-center p-4 min-h-screen">
+      <h1 className="mb-4 font-bold text-2xl">Chào mừng, {user.name}!</h1>
+      <p className="mb-2 text-muted">@{user.username || "chưa có username"}</p>
+      <p className="text-muted text-sm">Đây là trang feed chính của bạn.</p>
     </main>
   );
 }

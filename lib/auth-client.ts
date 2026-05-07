@@ -1,5 +1,3 @@
-// Copyright (c) 2026 Company Name. All rights reserved.
-
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
