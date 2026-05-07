@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-
 import { requireAuth } from "@/actions/auth.actions";
+import { MobileMenu } from "@/app/components/mobile-menu";
+import { Sidebar } from "@/app/components/sidebar";
 
 interface Props {
   children: ReactNode;
@@ -9,5 +10,13 @@ interface Props {
 export default async function ProtectedLayout({ children }: Props) {
   await requireAuth();
 
-  return <>{children}</>;
+  return (
+    <div className="bg-black min-h-screen text-white">
+      <Sidebar />
+      <main className="lg:ml-[260px] pb-20">
+        <div className="mx-auto px-4 py-6 max-w-3xl">{children}</div>
+      </main>
+      <MobileMenu />
+    </div>
+  );
 }
