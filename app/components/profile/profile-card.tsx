@@ -11,6 +11,7 @@ interface ProfileCardProps {
     username: string | null;
     bio: string | null;
     image: string | null;
+    isFollowing?: boolean;
     _count: {
       posts: number;
       followers: number;
@@ -36,7 +37,7 @@ export default function ProfileCard({
 
         <div className="relative size-20 rounded-full overflow-hidden border border-white/10">
           <Image
-            alt={userProfile.name || "Avatar"}
+            alt={userProfile.name || "Ảnh đại diện"}
             className="object-cover"
             fill
             src={userProfile.image || "/avatar.png"}
@@ -83,15 +84,24 @@ export default function ProfileCard({
         </div>
       </div>
 
-      {isOwnProfile && (
-        <button
-          className="w-full bg-white text-black py-2 rounded-xl font-semibold hover:bg-zinc-200 transition"
-          onClick={onOpenEditProfile}
-          type="button"
-        >
-          Chỉnh sửa hồ sơ
-        </button>
-      )}
+      <div className="flex items-center gap-3">
+        {isOwnProfile ? (
+          <button
+            className="w-full bg-white text-black py-2 rounded-xl font-semibold hover:bg-zinc-200 transition"
+            onClick={onOpenEditProfile}
+            type="button"
+          >
+            Chỉnh sửa hồ sơ
+          </button>
+        ) : (
+          <button
+            className="w-full bg-white text-black py-2 rounded-xl font-semibold hover:bg-zinc-200 transition"
+            type="button"
+          >
+            {userProfile.isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
