@@ -1,16 +1,22 @@
 "use client";
 
-import { Heart, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import type { PostWithRelations } from "@/app/hooks/usePosts";
 import { usePostStore } from "@/app/store/use-post-store";
 import { useModalStore } from "@/app/store/useModalStore";
+import LikeButton from "./LikeButton";
 
 type Props = {
   post: PostWithRelations;
   hideComment?: boolean;
+  currentUserId?: string;
 };
 
-export default function PostActions({ post, hideComment }: Props) {
+export default function PostActions({
+  post,
+  hideComment,
+  currentUserId,
+}: Props) {
   const { setIsReplyModalOpen } = useModalStore();
   const { setSelectedPost } = usePostStore();
 
@@ -20,20 +26,15 @@ export default function PostActions({ post, hideComment }: Props) {
     setIsReplyModalOpen(true);
   };
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // TODO: Triển khai logic thích
-  };
-
   return (
     <div className="flex items-center gap-5 mt-3">
-      <button
-        className="text-zinc-400 hover:text-white transition"
-        onClick={handleLike}
-        type="button"
-      >
-        <Heart className="size-5" />
-      </button>
+      <LikeButton
+        initialCount={post.likes.length}
+        initialLiked={post.likes.some(
+          (like: { userId: string }) => like.userId === currentUserId,
+        )}
+        postId={post.id}
+      />
 
       {!hideComment && (
         <button

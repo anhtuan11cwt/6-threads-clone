@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useProfile } from "@/app/contexts/ProfileContext";
 import { useModalStore } from "@/app/store/useModalStore";
 import CommentCard from "./CommentCard";
 import PostActions from "./post-actions";
@@ -31,6 +32,7 @@ interface PostCardProps {
 
 const PostCard = ({ post, isDetail = false }: PostCardProps) => {
   const router = useRouter();
+  const { profile } = useProfile();
   const [showComments, setShowComments] = useState(isDetail);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
@@ -80,7 +82,7 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
         <div className="flex gap-3">
           <Link href={`/${post.author.username}`}>
             <Image
-              alt="avatar"
+              alt="ảnh đại diện"
               className="rounded-full object-cover aspect-square"
               height={40}
               src={post.author.image || "/avatar.png"}
@@ -113,7 +115,7 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
             {post.image && (
               <div className="relative mt-3 rounded-2xl aspect-square overflow-hidden">
                 <Image
-                  alt="post image"
+                  alt="ảnh bài viết"
                   className="object-cover"
                   fill
                   src={post.image}
@@ -147,7 +149,7 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
                 )}
               </div>
             )}
-            <PostActions post={post} />
+            <PostActions currentUserId={profile?.id} post={post} />
           </div>
         </div>
       </div>
@@ -155,10 +157,14 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
   }
 
   return (
-    <button
+    <article
       className="hover:bg-white/[0.02] p-4 border-white/10 border-b w-full text-left transition cursor-pointer"
       onClick={handleCardClick}
-      type="button"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleCardClick();
+        }
+      }}
     >
       <div className="flex gap-3">
         <Link
@@ -166,7 +172,7 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <Image
-            alt="avatar"
+            alt="ảnh đại diện"
             className="rounded-full object-cover aspect-square"
             height={40}
             src={post.author.image || "/avatar.png"}
@@ -203,7 +209,7 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
           {post.image && (
             <div className="relative mt-3 rounded-2xl aspect-square overflow-hidden">
               <Image
-                alt="post image"
+                alt="ảnh bài viết"
                 className="object-cover"
                 fill
                 src={post.image}
@@ -237,10 +243,10 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
               )}
             </div>
           )}
-          <PostActions post={post} />
+          <PostActions currentUserId={profile?.id} post={post} />
         </div>
       </div>
-    </button>
+    </article>
   );
 };
 
