@@ -17,7 +17,7 @@ export default function ContainerLayout({
       {showBackButton && (
         <div className="top-0 z-10 sticky bg-black/95 backdrop-blur-md border-white/10 border-b">
           <button
-            className="flex items-center gap-2 px-4 py-3 text-white hover:text-zinc-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-3 text-white hover:text-zinc-300 transition-colors cursor-pointer"
             onClick={onBackClick}
             type="button"
           >
