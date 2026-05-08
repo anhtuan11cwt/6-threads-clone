@@ -1,8 +1,11 @@
 "use client";
 
+import axios from "axios";
 import Image from "next/image";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "@/app/components/Modal";
+import { useProfile } from "@/app/contexts/ProfileContext";
 import { useModalStore } from "@/app/store/useModalStore";
 
 interface EditProfileModalProps {
@@ -16,21 +19,58 @@ interface EditProfileModalProps {
 
 const EditProfileModal = ({ user }: EditProfileModalProps) => {
   const { isEditProfileOpen, onCloseEditProfile } = useModalStore();
+  const { updateProfile } = useProfile();
+  const [loading, setLoading] = useState(false);
   const [name, setName] = useState(user.name || "");
   const [username, setUsername] = useState(user.username || "");
   const [bio, setBio] = useState(user.bio || "");
   const [imagePreview, setImagePreview] = useState(user.image || "");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    setImageFile(file);
     const imageUrl = URL.createObjectURL(file);
     setImagePreview(imageUrl);
   };
 
-  const handleSubmit = async () => {
-    console.log({ bio, imagePreview, name, username });
-    onCloseEditProfile();
+  const handleLabelClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+  };
+
+  const handleSubmit = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("username", username);
+      formData.append("bio", bio);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      await axios.patch("/api/profile/update", formData);
+
+      // Update profile data immediately in the UI
+      updateProfile({
+        bio,
+        image: imagePreview,
+        name,
+        username,
+      });
+
+      toast.success("Cập nhật hồ sơ thành công");
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string } } };
+      toast.error(err?.response?.data?.error || "Đã xảy ra lỗi");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +81,7 @@ const EditProfileModal = ({ user }: EditProfileModalProps) => {
     >
       <div className="space-y-5">
         <div className="flex flex-col items-center gap-4">
-          <div className="relative h-24 w-24 overflow-hidden rounded-full">
+          <div className="relative rounded-full w-24 h-24 overflow-hidden">
             <Image
               alt="Avatar"
               className="object-cover"
@@ -49,10 +89,17 @@ const EditProfileModal = ({ user }: EditProfileModalProps) => {
               src={imagePreview || "/avatar.png"}
             />
           </div>
-          <label className="cursor-pointer rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition hover:opacity-90">
+          <label
+            className={`bg-white hover:opacity-90 px-4 py-2 rounded-full font-medium text-black text-sm transition cursor-pointer ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            onClick={handleLabelClick}
+            onKeyDown={(e) => e.key === "Enter" && handleLabelClick()}
+          >
             Đổi ảnh đại diện
             <input
               accept="image/*"
+              disabled={loading}
               hidden
               onChange={handleImageChange}
               type="file"
@@ -61,11 +108,12 @@ const EditProfileModal = ({ user }: EditProfileModalProps) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-neutral-300" htmlFor="name">
+          <label className="text-neutral-300 text-sm" htmlFor="name">
             Tên
           </label>
           <input
-            className="w-full rounded-xl border border-white/10 bg-[#1A1A1A] px-4 py-3 text-sm text-white outline-none transition focus:border-white/30"
+            className="bg-[#1A1A1A] disabled:opacity-50 px-4 py-3 border border-white/10 focus:border-white/30 rounded-xl outline-none w-full text-white text-sm transition"
+            disabled={loading}
             id="name"
             onChange={(e) => setName(e.target.value)}
             placeholder="Nhập tên của bạn"
@@ -75,11 +123,12 @@ const EditProfileModal = ({ user }: EditProfileModalProps) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-neutral-300" htmlFor="username">
+          <label className="text-neutral-300 text-sm" htmlFor="username">
             Tên người dùng
           </label>
           <input
-            className="w-full rounded-xl border border-white/10 bg-[#1A1A1A] px-4 py-3 text-sm text-white outline-none transition focus:border-white/30"
+            className="bg-[#1A1A1A] disabled:opacity-50 px-4 py-3 border border-white/10 focus:border-white/30 rounded-xl outline-none w-full text-white text-sm transition"
+            disabled={loading}
             id="username"
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Nhập tên người dùng"
@@ -89,11 +138,12 @@ const EditProfileModal = ({ user }: EditProfileModalProps) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-neutral-300" htmlFor="bio">
+          <label className="text-neutral-300 text-sm" htmlFor="bio">
             Tiểu sử
           </label>
           <textarea
-            className="w-full resize-none rounded-xl border border-white/10 bg-[#1A1A1A] px-4 py-3 text-sm text-white outline-none transition focus:border-white/30"
+            className="bg-[#1A1A1A] disabled:opacity-50 px-4 py-3 border border-white/10 focus:border-white/30 rounded-xl outline-none w-full text-white text-sm transition resize-none"
+            disabled={loading}
             id="bio"
             onChange={(e) => setBio(e.target.value)}
             placeholder="Viết gì đó về bản thân..."
@@ -103,11 +153,12 @@ const EditProfileModal = ({ user }: EditProfileModalProps) => {
         </div>
 
         <button
-          className="w-full rounded-xl bg-white py-3 text-sm font-semibold text-black transition hover:opacity-90"
+          className="bg-white hover:opacity-90 disabled:opacity-50 py-3 rounded-xl w-full font-semibold text-black text-sm transition"
+          disabled={loading}
           onClick={handleSubmit}
           type="button"
         >
-          Lưu hồ sơ
+          {loading ? "Đang lưu..." : "Lưu hồ sơ"}
         </button>
       </div>
     </Modal>
