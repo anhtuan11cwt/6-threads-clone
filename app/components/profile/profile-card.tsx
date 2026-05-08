@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useModalStore } from "@/app/store/useModalStore";
 
 interface ProfileCardProps {
   isOwnProfile?: boolean;
@@ -21,6 +23,8 @@ export default function ProfileCard({
   userProfile,
   isOwnProfile,
 }: ProfileCardProps) {
+  const { onOpenEditProfile } = useModalStore();
+
   return (
     <div className="border-b border-white/10 p-6 space-y-6">
       <div className="flex items-start justify-between">
@@ -45,12 +49,13 @@ export default function ProfileCard({
           <p className="text-white leading-relaxed">{userProfile.bio}</p>
         ) : (
           isOwnProfile && (
-            <Link
+            <button
               className="text-zinc-500 italic hover:underline"
-              href="/edit-profile"
+              onClick={onOpenEditProfile}
+              type="button"
             >
               Thêm tiểu sử
-            </Link>
+            </button>
           )
         )}
       </div>
@@ -79,14 +84,13 @@ export default function ProfileCard({
       </div>
 
       {isOwnProfile && (
-        <Link className="block w-full" href="/edit-profile">
-          <button
-            className="w-full bg-white text-black py-2 rounded-xl font-semibold hover:bg-zinc-200 transition"
-            type="button"
-          >
-            Chỉnh sửa hồ sơ
-          </button>
-        </Link>
+        <button
+          className="w-full bg-white text-black py-2 rounded-xl font-semibold hover:bg-zinc-200 transition"
+          onClick={onOpenEditProfile}
+          type="button"
+        >
+          Chỉnh sửa hồ sơ
+        </button>
       )}
     </div>
   );
