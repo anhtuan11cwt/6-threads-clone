@@ -3,7 +3,7 @@
 import type { Like, Post, User } from "@prisma/client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-type PostWithRelations = Post & {
+export type PostWithRelations = Post & {
   author: User;
   likes: Pick<Like, "userId">[];
   _count: { comments: number };

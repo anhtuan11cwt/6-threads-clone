@@ -1,6 +1,6 @@
 "use client";
 
-import type { Post, User } from "@prisma/client";
+import type { Comment, Post, User } from "@prisma/client";
 import moment from "moment";
 import "moment/locale/vi";
 
@@ -9,11 +9,19 @@ moment.locale("vi");
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useModalStore } from "@/app/store/useModalStore";
+import CommentCard from "./CommentCard";
+import PostActions from "./post-actions";
 
 type PostWithRelations = Post & {
   author: User;
   likes: { userId: string }[];
   _count: { comments: number; likes?: number };
+};
+
+type CommentWithAuthor = Comment & {
+  author: User;
 };
 
 interface PostCardProps {
@@ -23,18 +31,48 @@ interface PostCardProps {
 
 const PostCard = ({ post, isDetail = false }: PostCardProps) => {
   const router = useRouter();
+  const [showComments, setShowComments] = useState(isDetail);
+  const [comments, setComments] = useState<CommentWithAuthor[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const { isReplyModalOpen } = useModalStore();
 
   const handleCardClick = () => {
     if (isDetail) return;
     router.push(`/feed/${post.id}`);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isDetail) return;
-    if (e.key === "Enter" || e.key === " ") {
-      router.push(`/feed/${post.id}`);
+  const fetchComments = useCallback(async () => {
+    setLoadingComments(true);
+    try {
+      const { getComments } = await import("@/app/actions/comment.action");
+      const fetchedComments = await getComments(post.id);
+      setComments(fetchedComments);
+    } catch (error) {
+      console.error("Lỗi khi tải bình luận:", error);
+    } finally {
+      setLoadingComments(false);
     }
+  }, [post.id]);
+
+  const handleShowComments = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!showComments && comments.length === 0) {
+      await fetchComments();
+    }
+    setShowComments(!showComments);
   };
+
+  useEffect(() => {
+    if (!isReplyModalOpen && showComments) {
+      fetchComments();
+    }
+  }, [isReplyModalOpen, showComments, fetchComments]);
+
+  useEffect(() => {
+    if (isDetail && comments.length === 0) {
+      fetchComments();
+    }
+  }, [isDetail, comments.length, fetchComments]);
 
   if (isDetail) {
     return (
@@ -84,8 +122,32 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
             )}
             <div className="flex items-center gap-5 mt-3 text-neutral-400 text-sm">
               <p>{post.likes.length} lượt thích</p>
-              <p>{post._count.comments} bình luận</p>
+              <button
+                className="hover:text-white transition"
+                onClick={handleShowComments}
+                type="button"
+              >
+                {post._count.comments} bình luận
+              </button>
             </div>
+            {showComments && (
+              <div className="mt-4 pt-4 border-white/10 border-t">
+                {loadingComments ? (
+                  <p className="text-neutral-500 text-sm">Đang tải...</p>
+                ) : comments.length === 0 ? (
+                  <p className="text-neutral-500 text-sm">
+                    Chưa có bình luận nào.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {comments.map((comment) => (
+                      <CommentCard comment={comment} key={comment.id} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            <PostActions post={post} />
           </div>
         </div>
       </div>
@@ -94,9 +156,8 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
 
   return (
     <button
-      className="w-full text-left p-4 border-white/10 border-b transition cursor-pointer hover:bg-white/[0.02]"
+      className="hover:bg-white/[0.02] p-4 border-white/10 border-b w-full text-left transition cursor-pointer"
       onClick={handleCardClick}
-      onKeyDown={handleKeyDown}
       type="button"
     >
       <div className="flex gap-3">
@@ -151,8 +212,32 @@ const PostCard = ({ post, isDetail = false }: PostCardProps) => {
           )}
           <div className="flex items-center gap-5 mt-3 text-neutral-400 text-sm">
             <p>{post.likes.length} lượt thích</p>
-            <p>{post._count.comments} bình luận</p>
+            <button
+              className="hover:text-white transition"
+              onClick={handleShowComments}
+              type="button"
+            >
+              {post._count.comments} bình luận
+            </button>
           </div>
+          {showComments && (
+            <div className="mt-4 pt-4 border-white/10 border-t">
+              {loadingComments ? (
+                <p className="text-neutral-500 text-sm">Đang tải...</p>
+              ) : comments.length === 0 ? (
+                <p className="text-neutral-500 text-sm">
+                  Chưa có bình luận nào.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <CommentCard comment={comment} key={comment.id} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <PostActions post={post} />
         </div>
       </div>
     </button>
