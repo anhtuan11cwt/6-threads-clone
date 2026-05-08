@@ -3,6 +3,8 @@ import ContainerLayout from "@/app/components/layout/container-layout";
 import ProfileContent from "@/app/components/profile/profile-content";
 import LoadingSpinner from "@/app/components/shared/loading-spinner";
 
+export const dynamic = "force-dynamic";
+
 export default function ProfilePage() {
   return (
     <div className="mx-auto w-full max-w-2xl">
