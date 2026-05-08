@@ -29,7 +29,9 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       aria-labelledby="modal-title"
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
       role="dialog"
     >

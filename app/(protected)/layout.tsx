@@ -3,6 +3,7 @@ import { requireAuth } from "@/actions/auth.actions";
 import { getCurrentUser } from "@/actions/get-current-user";
 import { MobileMenu } from "@/app/components/mobile-menu";
 import EditProfileModal from "@/app/components/modals/EditProfileModal";
+import CreatePostModal from "@/app/components/post/CreatePostModal";
 import { Sidebar } from "@/app/components/sidebar";
 import { ProfileProvider } from "@/app/contexts/ProfileContext";
 
@@ -23,6 +24,7 @@ export default async function ProtectedLayout({ children }: Props) {
         </main>
         <MobileMenu />
         {user && <EditProfileModal user={user} />}
+        <CreatePostModal />
       </div>
     </ProfileProvider>
   );

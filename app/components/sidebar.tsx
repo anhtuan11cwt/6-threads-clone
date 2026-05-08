@@ -4,10 +4,12 @@ import { LogOut, PenSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "@/app/constants/navigation";
+import { useModalStore } from "@/app/store/useModalStore";
 import { Logo } from "./logo";
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const { setIsCreatePostOpen } = useModalStore();
 
   return (
     <aside className="hidden top-0 left-0 fixed lg:flex flex-col justify-between bg-black px-6 py-8 border-white/10 border-r w-[260px] h-screen">
@@ -41,6 +43,7 @@ export const Sidebar = () => {
         </nav>
         <button
           className="flex justify-center items-center gap-2 bg-white hover:opacity-90 py-3 rounded-full w-full font-semibold text-black transition cursor-pointer"
+          onClick={() => setIsCreatePostOpen(true)}
           type="button"
         >
           <PenSquare size={18} />
