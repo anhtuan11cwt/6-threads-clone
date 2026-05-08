@@ -55,3 +55,48 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Lỗi máy chủ nội bộ" }, { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Không được phép" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const cursor = searchParams.get("cursor");
+    const limit = Number(searchParams.get("limit")) || 3;
+
+    const posts = await prisma.post.findMany({
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1,
+      }),
+      include: {
+        _count: { select: { comments: true } },
+        author: true,
+        likes: { select: { userId: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    let nextCursor: string | null = null;
+    if (posts.length > limit) {
+      const nextItem = posts.pop();
+      nextCursor = nextItem?.id || null;
+    }
+
+    return NextResponse.json({
+      hasMore: !!nextCursor,
+      nextCursor,
+      posts,
+    });
+  } catch (error) {
+    console.error("[GET_POSTS_ERROR]", error);
+    return NextResponse.json({ error: "Lỗi máy chủ nội bộ" }, { status: 500 });
+  }
+}

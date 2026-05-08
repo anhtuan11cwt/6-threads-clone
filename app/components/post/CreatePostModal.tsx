@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { ImageIcon, Smile } from "lucide-react";
 import Image from "next/image";
@@ -13,6 +14,7 @@ import { useModalStore } from "@/app/store/useModalStore";
 
 export default function CreatePostModal() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { isCreatePostOpen, setIsCreatePostOpen } = useModalStore();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [content, setContent] = useState("");
@@ -49,6 +51,8 @@ export default function CreatePostModal() {
         const data = await response.json();
         throw new Error(data.error || "Không thể tạo bài viết");
       }
+
+      await queryClient.invalidateQueries({ queryKey: ["posts"] });
 
       setContent("");
       setImageFile(null);

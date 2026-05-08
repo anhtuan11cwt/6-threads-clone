@@ -5,10 +5,16 @@ import LoadingSpinner from "@/app/components/shared/loading-spinner";
 
 export default function ProfilePage() {
   return (
-    <ContainerLayout showBackButton={false} title="Hồ sơ">
-      <Suspense fallback={<LoadingSpinner />}>
-        <ProfileContent />
-      </Suspense>
-    </ContainerLayout>
+    <div className="mx-auto w-full max-w-2xl">
+      <div className="px-4 pt-6 pb-4">
+        <h1 className="font-bold text-white text-2xl">Hồ sơ</h1>
+      </div>
+
+      <ContainerLayout showBackButton={false}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <ProfileContent />
+        </Suspense>
+      </ContainerLayout>
+    </div>
   );
 }
