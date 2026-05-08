@@ -2,14 +2,22 @@
 
 import { LogOut, PenSquare } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "@/app/constants/navigation";
 import { useModalStore } from "@/app/store/useModalStore";
+import { authClient } from "@/lib/auth-client";
 import { Logo } from "./logo";
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const { setIsCreatePostOpen } = useModalStore();
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <aside className="hidden top-0 left-0 fixed lg:flex flex-col justify-between bg-black px-6 py-8 border-white/10 border-r w-[260px] h-screen">
@@ -52,6 +60,7 @@ export const Sidebar = () => {
       </div>
       <button
         className="flex items-center gap-3 px-4 text-red-400 hover:text-red-300 transition cursor-pointer"
+        onClick={handleLogout}
         type="button"
       >
         <LogOut size={20} />
