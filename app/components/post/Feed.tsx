@@ -2,20 +2,44 @@
 
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { usePosts } from "@/app/hooks/usePosts";
+import { type PostWithRelations, usePosts } from "@/app/hooks/usePosts";
 import PostCard from "./PostCard";
 
-const Feed = () => {
+interface FeedProps {
+  initialPosts?: PostWithRelations[];
+}
+
+const Feed = ({ initialPosts }: FeedProps) => {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePosts();
 
   const { ref, inView } = useInView();
 
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView && hasNextPage && !initialPosts) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, fetchNextPage]);
+  }, [inView, hasNextPage, fetchNextPage, initialPosts]);
+
+  if (initialPosts) {
+    if (initialPosts.length === 0) {
+      return (
+        <div className="py-10 text-neutral-400 text-center">
+          Chưa có bài viết nào.
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        {initialPosts.map((post) => (
+          <div key={post.id}>
+            <PostCard post={post} />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
