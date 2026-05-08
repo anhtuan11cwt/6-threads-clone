@@ -6,6 +6,7 @@ import EditProfileModal from "@/app/components/modals/EditProfileModal";
 import CreatePostModal from "@/app/components/post/CreatePostModal";
 import { Sidebar } from "@/app/components/sidebar";
 import { ProfileProvider } from "@/app/contexts/ProfileContext";
+import QueryProvider from "@/app/providers/query-provider";
 
 interface Props {
   children: ReactNode;
@@ -16,16 +17,18 @@ export default async function ProtectedLayout({ children }: Props) {
   const user = await getCurrentUser();
 
   return (
-    <ProfileProvider initialProfile={user}>
-      <div className="bg-black min-h-screen text-white">
-        <Sidebar />
-        <main className="lg:ml-[260px] pb-20">
-          <div className="mx-auto px-4 py-6 max-w-3xl">{children}</div>
-        </main>
-        <MobileMenu />
-        {user && <EditProfileModal user={user} />}
-        <CreatePostModal />
-      </div>
-    </ProfileProvider>
+    <QueryProvider>
+      <ProfileProvider initialProfile={user}>
+        <div className="bg-black min-h-screen text-white">
+          <Sidebar />
+          <main className="lg:ml-[260px] pb-20">
+            <div className="mx-auto px-4 py-6 max-w-3xl">{children}</div>
+          </main>
+          <MobileMenu />
+          {user && <EditProfileModal user={user} />}
+          <CreatePostModal />
+        </div>
+      </ProfileProvider>
+    </QueryProvider>
   );
 }
